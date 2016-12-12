@@ -14,7 +14,7 @@ Submitter: Fida Mohammad Thoker
 
 #define NUMPAT 1000     //change as per No of Pattersnss 
 #define INP_DIM  2      //change as per Dimension of Input 
-#define K_NEURONS 100         //change as per No of Rbf Neurons 
+#define K_NEURONS 100         //change as per No of K Neurons 
 #define PARTNERS 4      //change as per No of Partner networks 
 #define G_DIM  2      //change as per Dimension of Grid 
 #define INDIVUAL_PAT_SIZE  ((int)(K_NEURONS / PARTNERS))  // size of each som according to ( Partners and K_neurons)
