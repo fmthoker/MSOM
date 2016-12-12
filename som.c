@@ -31,11 +31,11 @@ void create_grid();
 int find_winner_neuron(double *Input);
 void AdjustWeights(double *centers, double *input,double LearningRate, double Influence);
 
-void display_centres(double *c);
+void display_centres(double *c, FILE* output_file);
 int find_Som_of_winner(int winner);
 
 double Grid[K_NEURONS][G_DIM] = {0}; //  Create Array of G_Dimensional vectors
-double MPATNERS[PARTNERS]= {0}; //  Create Array of G_Dimensional vectors
+double M_SOMS[PARTNERS]= {0}; //  Create Array of G_Dimensional vectors
 
 double centers[K_NEURONS][INP_DIM]= {0,};  //  Create Array of Input dimensional centeres
 
@@ -49,8 +49,6 @@ int main(int argc,char *argv[])
 	int seed = 1000;    /* to control the random number generator and randomize the input*/
 	srand(seed);
 
-	FILE* Error_file;
-	Error_file = fopen("error_file", "w");
 	FILE* output_file;
 	output_file = fopen("output_file", "w");
 
@@ -61,6 +59,11 @@ int main(int argc,char *argv[])
 	double Error,  eta2 = 0.5;   // use eta2  output layer neurons as learning rates
 
 	FILE* data;
+	if(argc<2)	
+	{
+	printf("Usage ./a.out input_filename \n");
+	return;
+	}
 	data = fopen(argv[1], "r");
 	char *line = NULL;
 	size_t size =0;
@@ -154,8 +157,8 @@ int main(int argc,char *argv[])
 			// find the respective som for the winner neuron
 			som = find_Som_of_winner(winner);
 			//start and end node of the winner som
-			start = MPATNERS[som];
-			end = MPATNERS[som+1];
+			start = M_SOMS[som];
+			end = M_SOMS[som+1];
 
 		//calculate the width of the neighbourhood for this timestep for this SOM
 		NeighbourhoodRadius[som] = MapRadius * exp(-(double)IterationCount[som]/TimeConstant);
@@ -171,7 +174,6 @@ int main(int argc,char *argv[])
 					//calculate by how much its weights are adjusted
 					sigma = NeighbourhoodRadius[som];
 					Influence = exp(-(dist *dist) / (2*sigma*sigma));
-	//	printf("Neighbourhood influence Rate is %f \n",Influence);
 
 					AdjustWeights(centers[k],Input[p], LearningRate[som], Influence);
 				}
@@ -184,24 +186,38 @@ int main(int argc,char *argv[])
 
 
 	}
-//}
 
-for (i =0; i<K_NEURONS;i++){
+	for (k=0;k<PARTNERS;k++){
 
-	printf("Centre %d = {",i);
-	display_centres(centers[i]);
+		printf("Centres of SOM[%d] \n",k);
+		fprintf(output_file,"Centres of SOM[%d] \n",k);
 
-}
+		for (i =M_SOMS[k]; i< M_SOMS[k]+INDIVUAL_PAT_SIZE;i++){
+
+			printf("Centre %d = {",i);
+			fprintf(output_file,"Centre %d = {",i);
+			display_centres(centers[i],output_file);
+
+		}
+	}
 
 
 return 0;
 }
 
-void display_centres(double *c)
+/***************************************************
+* Function to dispaly the centeres after giving all 
+  the input data
+****************************************************/
+
+void display_centres(double *c, FILE *output_file)
 {
 int i =0;
-for (i=0;i<INP_DIM;i++)
+for (i=0;i<INP_DIM;i++){
 	printf("%f,  ",c[i]);
+	fprintf(output_file,"%f,  ",c[i]);
+	}
+	fprintf(output_file,"}\n");
 	printf("}\n");
 }
 
@@ -397,7 +413,7 @@ void create_grid()
 	}
 	// calculate the number of k neurons in each partner form the totak K neurons 
 	for (i =0,j=0;i<K_NEURONS;i =i+INDIVUAL_PAT_SIZE,j++)
-		MPATNERS[j] = i;    // Each MPATNERS element contains the starting index of partner som in the FULL single grid
+		M_SOMS[j] = i;    // Each M_SOMS element contains the starting index of partner som in the FULL single grid
 		
 
 	return ;
@@ -412,7 +428,7 @@ int find_Som_of_winner(int winner)
 
 	int i;
 	for (i=0;i<PARTNERS-1;i++){
-		if(winner>=MPATNERS[i] && winner <MPATNERS[i+1])
+		if(winner>=M_SOMS[i] && winner <M_SOMS[i+1])
 			return i;
 	}
 
