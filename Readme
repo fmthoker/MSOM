@@ -1,0 +1,27 @@
+
+(1)   Compile the program using 
+	gcc som.c -lm
+
+(2) To change the structure of the system change the respective MACROS at the top of the file
+
+(3) Run the program using following command 
+	./a.out train_PA-D.dat 
+  Use the file given by professor 
+
+(4) Now to test the system for case M=4, g=2, N=2 using data form a 3 non overlapping areas of a input cube
+(change INP_DIM to 2, G_DIM to 2 and PARTNERS to 2)
+
+run the program using ./a.out non_over_lap_area
+
+This file contains the data taken uniformly form 3 non overlapping areas
+Area1 x between(2,6) and y between(0,4)  
+Area2 x between(10,12) and y between(20,22)
+Area3 x between(14,18) and y between(30,35)
+
+with 333 unifrom entries form each area
+
+(5) The final centres will be written to file output_file
+
+(6) Also attached is the python script to generate more such non-over lapping data files
+
+scrpit_non_overlap_data.py

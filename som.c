@@ -14,10 +14,9 @@ Submitter: Fida Mohammad Thoker
 
 #define NUMPAT 1000     //change as per No of Pattersnss 
 #define INP_DIM  2      //change as per Dimension of Input 
-#define K_NEURONS 50         //change as per No of Rbf Neurons 
+#define K_NEURONS 100         //change as per No of Rbf Neurons 
 #define PARTNERS 4      //change as per No of Partner networks 
 #define G_DIM  2      //change as per Dimension of Grid 
-#define GAUSIAN_SIZE  3
 #define INDIVUAL_PAT_SIZE  ((int)(K_NEURONS / PARTNERS))  // size of each som according to ( Partners and K_neurons)
 
 #define rando() ((double)rand()/(RAND_MAX))
@@ -54,9 +53,8 @@ int main(int argc,char *argv[])
 
 
 
-	double sigma = GAUSIAN_SIZE;  // width of the gaussain
+	double sigma = 0;  // width of the gaussain adjustable at run time
 
-	double Error,  eta2 = 0.5;   // use eta2  output layer neurons as learning rates
 
 	FILE* data;
 	if(argc<2)	
@@ -90,7 +88,7 @@ int main(int argc,char *argv[])
 	//keeps track of what iteration each som has reached
 	int                 IterationCount[PARTNERS];
 
-	//the current size of the winning node's area of influence
+	//the current size of the winning node's area of influence of the respective SOM
 	double              NeighbourhoodRadius [PARTNERS];
 
 	//how much the learning rate is adjusted for nodes within
@@ -115,7 +113,6 @@ int main(int argc,char *argv[])
 		while(string[k]!=NULL)                    
 		{
 			Input[i][k]=atof(string[k]);
-			//		printf("Input=%f	",Input[i][k]);
 			k++;
 			string[k]=strtok(NULL,delimit);
 		}
@@ -135,6 +132,7 @@ int main(int argc,char *argv[])
 		//printf(" centers %f	",centers[i][j]);
 	}
 
+	// Initialize individual soms learning rate, NeighbourhoodRadius and IterationCount
 	for (i=0;i<PARTNERS;i++){
 		NeighbourhoodRadius[i]=0;
 		LearningRate[i]=0.1;
@@ -148,9 +146,17 @@ int main(int argc,char *argv[])
 	int end; 
 
 
+	// Input will be presented in randomized order with equal probability
+        for( p = 1 ; p <= NumPattern ; p++ ) {    /* randomize order of individuals */
+            ranpat[p] = p ;
+        }
+        for( p = 1 ; p <= NumPattern ; p++) {
+            np = p + rando() * ( NumPattern + 1 - p ) ;
+            op = ranpat[p] ; ranpat[p] = ranpat[np] ; ranpat[np] = op ;
+        }
 
 	for (i=0;i<NumPattern;i++) {
-		p=i;
+		p=ranpat[i];                 // take pattern number form the randomized array
 
 			// find the winner neuron
 			winner = find_winner_neuron(Input[p]);
@@ -172,6 +178,7 @@ int main(int argc,char *argv[])
 				{
 
 					//calculate by how much its weights are adjusted
+					// implementation of adjustable widith (sigma) of guassian as per the quesiton
 					sigma = NeighbourhoodRadius[som];
 					Influence = exp(-(dist *dist) / (2*sigma*sigma));
 
@@ -187,6 +194,7 @@ int main(int argc,char *argv[])
 
 	}
 
+	// dispaly indiviuals soms and their final centre values
 	for (k=0;k<PARTNERS;k++){
 
 		printf("Centres of SOM[%d] \n",k);
@@ -300,6 +308,9 @@ void AdjustWeights(double *centers, double *input,double LearningRate, double In
 /***************************************************
 * Function to  Create the structure lattic of the 
   Grid represting multiple soms
+*This function copies the rectangular indicies of the g-dimensional lattice 
+into our GRID array which is a 2 dimensional array 
+and whose each row contains g elements representing the position  of each centre in the grid (lattice)
 ****************************************************/
 
 
@@ -309,10 +320,11 @@ void create_grid()
 	int count=0;
 	int i,j,k,g,z,l;
 	int no_of_indiv_k_neurons;
-	switch(G_DIM)  // Create K grid indexs as per the grid dimension(Lattice structure) and copy them into GRID vectors
+	switch(G_DIM)  
+// Create totak K grid indexs as per the grid dimension(Lattice structure) and copy them into GRID vectors
 // Array of vector Grid[K_NEURONS] represents the whole grid which contains all the Partner soms
 	{
-		case 1:
+		case 1: // if the grid is one dimensional
 			for (i =0,g=0;i<K_NEURONS;i++){
 				temp_array[0]=j;
 				copy_indicies(Grid[g],temp_array);
@@ -321,7 +333,7 @@ void create_grid()
 					break;
 			}
 			break;
-		case 2:
+		case 2:// if the grid is 2 dimensional
 			for (i =0,g=0;i<K_NEURONS;i++){
 				for(j=0;j<2;j++){
 					temp_array[0]=i;
@@ -334,7 +346,7 @@ void create_grid()
 					break;
 			}
 			break;
-		case 3:
+		case 3:// if the grid is 3 dimensional
 			for (i =0,g=0;i<K_NEURONS;i++){
 				for(j=0;j<3;j++){
 					for(k=0;k<3;k++){
@@ -354,7 +366,7 @@ void create_grid()
 					break;
 			}
 			break;
-		case 4:
+		case 4:// if the grid is 4 dimensional
 			for (i =0,g=0;i<K_NEURONS;i++){
 				for(j=0;j<4;j++){
 					for(k=0;k<4;k++){
@@ -379,7 +391,7 @@ void create_grid()
 					break;
 			}
 			break;
-		case 5:
+		case 5:// if the grid is 5 dimensional
 			for (i =0,g=0;i<K_NEURONS;i++){
 				for(j=0;j<5;j++){
 					for(k=0;k<5;k++){
