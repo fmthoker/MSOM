@@ -1,3 +1,5 @@
+Implementation of a Multiple Self Organising map ( Assignment for University of bonn 2016)
+
 (1)   Compile the program using 
 	gcc som.c -lm
 
